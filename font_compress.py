@@ -49,12 +49,14 @@ def compress_to_bits(pixels):
     """Pack 8 monochrome pixels into 1 byte"""
     assert len(pixels) % 8 == 0, "Pixel count must be divisible by 8"
     
-    compressed = []
+    # Pre-allocate bytearray for better performance and memory efficiency
+    compressed = bytearray(len(pixels) // 8)
+    
     for i in range(0, len(pixels), 8):
         byte = 0
         for j in range(8):
             byte = (byte << 1) | (1 if pixels[i + j] == 0xFF else 0)
-        compressed.append(byte)
+        compressed[i // 8] = byte  # Direct index assignment
     
     return compressed
 
@@ -145,7 +147,6 @@ def save_preview(pixels, w, h, output_path):
     print(f"Preview saved: {output_path}", file=sys.stderr)
 
 def decompress_and_verify(compressed, original_size):
-    """Decompress and verify"""
     result = []
     i = 0
     while i < len(compressed):
@@ -237,7 +238,6 @@ def process_image(image_path, args, output_path):
             char_w = w // cols
             char_h = h // rows
     
-    # Validate
     if w % char_w != 0 or h % char_h != 0:
         print(f"Warning: Image size {w}×{h} not evenly divisible by char size {char_w}×{char_h}", 
               file=sys.stderr)
@@ -248,7 +248,6 @@ def process_image(image_path, args, output_path):
     if args.solid:
         generate_solid_char(pixels, w, h, cols, rows, char_w, char_h)
     
-    # Compress
     if args.raw:
         compressed = pixels
     else:
@@ -290,7 +289,7 @@ def process_image(image_path, args, output_path):
                 f.write(output)
             else:
                 f.write(output)
-        print(f"✓ Output saved to: {output_path}", file=sys.stderr)
+        print(f"Output saved to: {output_path}", file=sys.stderr)
     else:
         if isinstance(output, bytes):
             sys.stdout.buffer.write(output)
