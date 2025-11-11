@@ -1,6 +1,12 @@
 # font_compress
 this compresses bitmap fonts
 
+Branch Changes:
+
+Optimize `compress_to_bits` with bytearray
+- Replace list-based bit packing with bytearray
+- Pre-allocate memory instead of dynamic growth
+
 
 ```
 usage: font_compress.py [-h] [-f {rust,c,bin}] [-o OUTPUT] [--grid GRID]
@@ -34,7 +40,6 @@ optional arguments:
                         Process multiple images (e.g., *.png)
   --list-fonts          List characters in the font
 ```
-
 
 The script loads the font image and converts to grayscale, automatically detects character grid layout or uses manual specifications, if required, converts grayscale to black and white using a threshold, packs 8 monochrome pixels into a single byte (8:1 compression), compresses runs of identical bytes, particularly effective for the empty spaces in fonts.   
      
